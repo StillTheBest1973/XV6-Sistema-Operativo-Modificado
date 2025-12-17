@@ -104,6 +104,7 @@ extern int sys_wait(void);
 extern int sys_write(void);
 extern int sys_uptime(void);
 extern int sys_seguimiento(void);
+extern int sys_cantproc(void);
 
 static char *syscall_names[] = {
   [SYS_fork]    "fork",
@@ -128,6 +129,7 @@ static char *syscall_names[] = {
   [SYS_mkdir]   "mkdir",
   [SYS_close]   "close",
   [SYS_seguimiento] "seguimiento",
+  [SYS_cantproc] "cantproc"
 };
 
 static int (*syscalls[])(void) = {
@@ -153,6 +155,7 @@ static int (*syscalls[])(void) = {
 [SYS_mkdir]   sys_mkdir,
 [SYS_close]   sys_close,
 [SYS_seguimiento] sys_seguimiento,
+[SYS_cantproc] sys_cantproc,
 };
 
 void

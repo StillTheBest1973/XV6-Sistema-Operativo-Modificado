@@ -99,3 +99,8 @@ sys_seguimiento(void){
   myproc()->seguimiento = activo;
   return 0;
 }
+
+int
+sys_cantproc(void){
+  return contarproc();
+}

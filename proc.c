@@ -532,3 +532,21 @@ procdump(void)
     cprintf("\n");
   }
 }
+
+int
+contarproc(void)
+{
+  struct proc *p;
+  int cant = 0;
+  p = ptable.proc;
+
+  while (p < &ptable.proc[NPROC])
+  {
+    if(p->state != UNUSED){
+      cant++;
+    }
+    p++;
+  }
+
+  return cant;
+}
