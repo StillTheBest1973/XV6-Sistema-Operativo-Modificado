@@ -89,3 +89,13 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+int 
+sys_seguimiento(void){
+  int activo;
+  if(argint(0, &activo) < 0){
+    return -1;
+  }
+  myproc()->seguimiento = activo;
+  return 0;
+}

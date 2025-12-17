@@ -103,6 +103,32 @@ extern int sys_unlink(void);
 extern int sys_wait(void);
 extern int sys_write(void);
 extern int sys_uptime(void);
+extern int sys_seguimiento(void);
+
+static char *syscall_names[] = {
+  [SYS_fork]    "fork",
+  [SYS_exit]    "exit",
+  [SYS_wait]    "wait",
+  [SYS_pipe]    "pipe",
+  [SYS_read]    "read",
+  [SYS_kill]    "kill",
+  [SYS_exec]    "exec",
+  [SYS_fstat]   "fstat",
+  [SYS_chdir]   "chdir",
+  [SYS_dup]     "dup",
+  [SYS_getpid]  "getpid",
+  [SYS_sbrk]    "sbrk",
+  [SYS_sleep]   "sleep",
+  [SYS_uptime]  "uptime",
+  [SYS_open]    "open",
+  [SYS_write]   "write",
+  [SYS_mknod]   "mknod",
+  [SYS_unlink]  "unlink",
+  [SYS_link]    "link",
+  [SYS_mkdir]   "mkdir",
+  [SYS_close]   "close",
+  [SYS_seguimiento] "seguimiento",
+};
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -126,6 +152,7 @@ static int (*syscalls[])(void) = {
 [SYS_link]    sys_link,
 [SYS_mkdir]   sys_mkdir,
 [SYS_close]   sys_close,
+[SYS_seguimiento] sys_seguimiento,
 };
 
 void
@@ -142,4 +169,120 @@ syscall(void)
             curproc->pid, curproc->name, num);
     curproc->tf->eax = -1;
   }
+
+  if(curproc->seguimiento){       // Verificar si esta habilitado el seguimiento de syscalls del proceso
+    cprintf("pid: %d, syscall %s(", curproc->pid, syscall_names[num]);
+
+    switch(num){
+      case SYS_exit: {
+        int status;
+        argint(0, &status);
+        cprintf("%d", status);
+        break;
+      }
+      case SYS_wait: {
+        int *status;
+        argptr(0, (char**)&status, sizeof(int));
+        cprintf("%p", status);
+        break;
+      }
+      case SYS_kill: {
+        int pid;
+        argint(0, &pid);
+        cprintf("%d", pid);
+        break;
+      }
+      case SYS_seguimiento:
+      case SYS_sleep:
+      case SYS_close:
+      case SYS_dup:
+      case SYS_sbrk: {
+        int n;
+        argint(0, &n);
+        cprintf("%d", n);
+        break;
+      }
+      case SYS_exec: {
+        char *file;
+        char *argv;
+        argstr(0, &file);
+        argstr(1, &argv);
+        cprintf("%d, %d", file, argv);
+        break;
+      }
+      case SYS_open: {
+        char *file;
+        int flags;
+        argstr(0, &file);
+        argint(1, &flags);
+        cprintf("%d, %d", file, flags);
+        break;
+      }
+      case SYS_write: {
+        int fd, n;
+        char *buf;
+        argint(0, &fd);
+        argptr(1, &buf, 0);
+        argint(2, &n);
+        cprintf("%d, %p, %d", fd, buf, n);
+        break;
+      }
+      case SYS_read: {
+        int fd, n;
+        char *buf;
+        argint(0, &fd);
+        argptr(1, &buf, 0);
+        argint(2, &n);
+        cprintf("%d, %p, %d", fd, buf, n);
+        break;
+      }
+      case SYS_pipe: {
+        int *p;
+        argptr(0, (char**)&p, 2*sizeof(int));
+        cprintf("%p", p);
+        break;
+      }
+      case SYS_mkdir:
+      case SYS_chdir: {
+        char *dir;
+        argstr(0, &dir);
+        cprintf("%s", dir);
+        break;
+      }
+      case SYS_mknod: {
+        char *file;
+        int a, b;
+        argstr(0, &file);
+        argint(1, &a);
+        argint(2, &b);
+        cprintf("%s, %d, %d", file, a, b);
+        break;
+      }
+      case SYS_fstat: {
+        int fd;
+        struct stat *st;
+        argint(0, &fd);
+        argptr(1, (void*)&st, sizeof(st));
+        cprintf("%d, %p", fd, st);
+        break;
+      }
+      case SYS_link: {
+        char *file1, *file2;
+        argstr(0, &file1);
+        argstr(1, &file2);
+        cprintf("%s, %s", file1, file2);
+        break;
+      }
+      case SYS_unlink: {
+        char *file;
+        argstr(0, &file);
+        cprintf("%s", file);
+      }
+      default: {
+        break;
+      }
+    }
+    cprintf(")\n");
+  }
+
 }
